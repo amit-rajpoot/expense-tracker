@@ -22,6 +22,7 @@ def add_expense(amount, category, description):
     expenses.append(expense)
 
     print("Expense added successfully!")
+    print("Add more")
 
     
 
