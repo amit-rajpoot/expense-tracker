@@ -23,9 +23,7 @@ def add_expense(amount, category, description):
 
     print("Expense added successfully!")
 
-    print(expenses) # Ye list of object return karega
-    print(expense) # Ye bas item ko object table ke format mai return karega
-
+    
 
 #<------------ARGUMENT PARSER -------->
 
