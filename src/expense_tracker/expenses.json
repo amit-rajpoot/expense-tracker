@@ -1,0 +1,38 @@
+[
+    {
+        "amount": "200",
+        "category": "food",
+        "description": "breakfast",
+        "date": "2026-09-14"
+    },
+    {
+        "amount": "350",
+        "category": "travel",
+        "description": "auto",
+        "date": "2026-09-14"
+    },
+    {
+        "amount": "250",
+        "category": "food",
+        "description": "lunch",
+        "date": "2026-09-15"
+    },
+    {
+        "amount": "150",
+        "category": "shopping",
+        "description": "tshirt",
+        "date": "2026-09-15"
+    },
+    {
+        "amount": "300",
+        "category": "food",
+        "description": "dinner",
+        "date": "2026-09-16"
+    },
+    {
+        "amount": "100",
+        "category": "entertainment",
+        "description": "gamezone",
+        "date": "2026-09-16"
+    }
+]
