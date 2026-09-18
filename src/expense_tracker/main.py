@@ -4,6 +4,16 @@ from decimal import Decimal
 from datetime import date
 from pathlib import Path
 
+VALID_CATEGORIES = {
+    "food",
+    "transport",
+    "rent",
+    "utilities",
+    "entertainment",
+    "health",
+    "other"
+}
+
 #-------""" JSON PATH """------>
 
 DATA_FILE = Path("expenses.json")
@@ -12,19 +22,26 @@ DATA_FILE = Path("expenses.json")
 def load_expenses():
     if not DATA_FILE.exists():
         return []
-
-    with DATA_FILE.open("r") as file:
-        data = json.load(file)
+    
+    try:
+        with DATA_FILE.open("r") as file:
+         data = json.load(file)
+    except json.JSONDecodeError:
+        print("Invalid Json data.")
+        return []
 
     expenses = []
 
     for expense in data:
-        expenses.append({
+        try:
+            expenses.append({
             "amount":Decimal(expense["amount"]),
             "category":expense["category"],
             "description":expense["description"],
             "date":date.fromisoformat(expense["date"])
-        })
+            })
+        except (KeyError , ValueError):
+            print("Invalid expense data found skipping expense.")
     return expenses
 
 expenses = load_expenses()
@@ -49,17 +66,59 @@ def save_expense():
 
 
 #-------""" ADD FUNCTION FOR EXPENSE """------>
+
 def add_expense(amount, category, description, expense_date):
 
-    amount = Decimal(amount)
-    expense_date = date.fromisoformat(expense_date)
- 
+    #----------- AMOUNT VALIDATION ----------->
+    
+    try:
+        amount = Decimal(amount)
+
+        if not amount.is_finite():
+           print("Invalid amount.")
+
+
+        amount = amount.quantize(Decimal("0.01"))
+    except ValueError:
+        print("Invalid amount.")
+        return
+    #----------- DATE VALIDATION ----------->
+    
+    try:
+        expense_date = date.fromisoformat(expense_date)
+    except ValueError:
+        print("Invalid date. Use YYYY-MM-DD format.")
+        return
+
+    #----------- CATEGORY VALIDATION ----------->
+    
+    category = category.lower()
+
+    if category not in VALID_CATEGORIES:
+        print("Invalid category.")
+        print(
+            "Allowed categories:",
+            ", ".join(sorted(VALID_CATEGORIES))
+        )
+        return
+    #----------- DESCRIPTION VALIDATION ----------->
+    
+    if not description.strip():
+        print("Description cannot be empty.")
+        return
+
+    if not len(description.strip()) < 100:
+        print("Description can be 100 characters or less.")
+        return
+
+    description = description.strip()
+    
     if expense_date > date.today():
-        print("Expense date cannot be in the Future")
+        print("Expense date cannot be in the Future.")
         return
 
     if amount <= 0:
-        print("Amount must be greater than zero")
+        print("Amount must be greater than zero.")
         return
 
     expense = {
@@ -75,63 +134,176 @@ def add_expense(amount, category, description, expense_date):
     print("Expense added successfully!")
 
 #-------""" Function for List expenses """------>
-def list_expenses(category=None , from_date=None , to_date=None):
+def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="date"):
 
-    found = False 
+    #----------- CATEGORY VALIDATION ----------->
+
+    if category:
+        category = category.lower()
+
+        if category not in VALID_CATEGORIES:
+            print("Invalid category.")
+            print(
+                "Allowed categories:",
+                ", ".join(sorted(VALID_CATEGORIES))
+            )
+            return
+    #----------- CHOICE VALIDATION ----------->
+    if sort not in {"date" , "amount"}:
+        print("Invalid sort option - Use 'date' or 'amount'")
+        return
+
+    #----------- DATE VALIDATION ----------->
+    try:
+        if from_date:
+            from_date = date.fromisoformat(from_date)
+
+        if to_date:
+            to_date = date.fromisoformat(to_date)
+
+    except ValueError:
+        print("Invalid date! - Use YYYY-MM-DD format.")
+        return
+
+    if from_date and to_date and from_date > to_date:
+        print("From date cannot be after to date.")
+        return
+
+    #----------- LIMIT VALIDATION ----------->
+
+    if limit is not None and limit <= 0:
+        print("Limit must be greater than zero.")
+        return
+
+    #----------- FILTER EXPENSES ----------->
+
+    filtered_expenses = []
 
     for expense in expenses:
 
         if category and expense["category"] != category:
             continue
 
-        if from_date and expense["date"] < date.fromisoformat(from_date):
+        if from_date and expense["date"] < from_date:
             continue
 
-        if to_date and expense["date"] < date.fromisoformat(to_date):
+        if to_date and expense["date"] > to_date:
             continue
 
-        found = True
+        filtered_expenses.append(expense)
 
-        print(
-            f"{expense["date"]} | "
-            f"{expense["category"]} | "
-            f"{expense["amount"]} | "
-            f"{expense["description"]} | "
+    #----------- SORT EXPENSES ----------->
+
+    if sort == "amount":
+
+        filtered_expenses.sort(
+            key=lambda expense: expense["amount"],
+            reverse=True
         )
 
-    if not found:
-        print("No expense found")
+    else:
+
+        filtered_expenses.sort(
+            key=lambda expense: expense["date"],
+            reverse=True
+        )
+
+    #----------- APPLY LIMIT ----------->
+
+    if limit:
+        filtered_expenses = filtered_expenses[:limit]
+
+    #----------- NO EXPENSES ----------->
+
+    if not filtered_expenses:
+        print("No expenses found.")
+        return
+
+    #----------- DISPLAY EXPENSES ----------->
+
+    for expense in filtered_expenses:
+
+        print(
+            f"{expense['date']} | "
+            f"{expense['category']} | "
+            f"₹{expense['amount']} | "
+            f"{expense['description']}"
+        )
 
 #-------""" Function for report expenses """------>
-def expense_report():
+def expense_report(month=None, year=None):
+
+    if not expenses:
+        print("No expense found.")
+        return
+
+    #----------- MONTH VALIDATION ----------->
+
+    if month:
+        try:
+            date.fromisoformat(month + "-01")
+        except ValueError:
+            print("Invalid month. Use YYYY-MM format.")
+            return
+
+    #----------- YEAR VALIDATION ----------->
+
+    if year is not None and (year < 1 or year > 9999):
+        print("Invalid year.")
+        return
 
     totals = {}
     monthly_totals = {}
+    grand_total = Decimal("0")
+
+    #----------- PROCESS EXPENSES ----------->
 
     for expense in expenses:
 
+        expense_month = expense["date"].strftime("%Y-%m")
+
+        #----------- MONTH FILTER ----------->
+
+        if month and expense_month != month:
+            continue
+
+        if year is not None and expense["date"].year != year:
+            continue
+
         category = expense["category"]
-        month = expense["date"].strftime("%Y-%m")
         amount = expense["amount"]
+
+        grand_total += amount
 
         if category not in totals:
             totals[category] = Decimal("0")
 
-        if month not in monthly_totals: 
-            monthly_totals[month] = Decimal("0")
-
+        if expense_month not in monthly_totals:
+            monthly_totals[expense_month] = Decimal("0")
 
         totals[category] += amount
-        monthly_totals[month] += amount
+        monthly_totals[expense_month] += amount
 
-    for category ,total in totals.items():
-        print(f"{category}:₹{total}")
+    #----------- CATEGORY TOTAL ----------->
+
+    if not totals:
+        print("No expenses found.")
+        return
+
+    for category in sorted(totals):
+        print(f"{category}:₹{totals[category]:.2f}")
+
+    #----------- MONTHLY SUMMARY ----------->
 
     print("\nMonthly Summary:")
-    
-    for month , total in monthly_totals.items():
-        print(f"{month} : ₹{total}")
 
+    for expense_month in sorted(monthly_totals):
+        print(f"{expense_month}: ₹{monthly_totals[expense_month]:.2f}")
+
+    #----------- GRAND TOTAL ----------->
+
+    print("\nGrand Total:")
+    print(f"₹{grand_total:.2f}")
 
 #<------------ARGUMENT PARSER -------->
 
@@ -164,11 +336,16 @@ list_parser = subparsers.add_parser("list")
 list_parser.add_argument("--category")
 list_parser.add_argument("--from-date")
 list_parser.add_argument("--to-date")
+list_parser.add_argument("--limit" , type=int)
+list_parser.add_argument("--sort",choices=["date","amount"],default="date")
 
 
 #------------------REPORT COMMAND ------------>
 
 report_parser = subparsers.add_parser("report")
+
+report_parser.add_argument("--month")
+report_parser.add_argument("--year" , type=int)
 
 
 #------- PARSE ARGUMENTS ---->
@@ -189,8 +366,11 @@ elif args.command == "list":
     
     list_expenses(args.category,
                   args.from_date,
-                  args.to_date
+                  args.to_date,
+                  args.limit,
+                  args.sort
     )
 
 elif args.command == "report":
-    expense_report()
+    expense_report(args.month,
+                   args.year)

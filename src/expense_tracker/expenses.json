@@ -3,7 +3,7 @@
         "amount": "200",
         "category": "food",
         "description": "breakfast",
-        "date": "2026-09-14"
+        "date": "2026-08-14"
     },
     {
         "amount": "350",
@@ -34,5 +34,17 @@
         "category": "entertainment",
         "description": "gamezone",
         "date": "2026-09-16"
+    },
+    {
+        "amount": "100.00",
+        "category": "other",
+        "description": "backexam",
+        "date": "2025-09-09"
+    },
+    {
+        "amount": "9999999999999999.00",
+        "category": "other",
+        "description": "backexam",
+        "date": "2025-09-09"
     }
 ]
