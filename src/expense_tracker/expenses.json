@@ -1,50 +1,79 @@
 [
     {
-        "amount": "200",
+        "id": 1,
+        "amount": "200.00",
         "category": "food",
         "description": "breakfast",
         "date": "2026-08-14"
     },
     {
-        "amount": "350",
-        "category": "travel",
+        "id": 2,
+        "amount": "350.00",
+        "category": "transport",
         "description": "auto",
         "date": "2026-09-14"
     },
     {
-        "amount": "250",
+        "id": 3,
+        "amount": "250.00",
         "category": "food",
         "description": "lunch",
         "date": "2026-09-15"
     },
     {
-        "amount": "150",
-        "category": "shopping",
+        "id": 4,
+        "amount": "150.00",
+        "category": "other",
         "description": "tshirt",
         "date": "2026-09-15"
     },
     {
-        "amount": "300",
+        "id": 5,
+        "amount": "300.00",
         "category": "food",
         "description": "dinner",
         "date": "2026-09-16"
     },
     {
-        "amount": "100",
+        "id": 6,
+        "amount": "100.00",
         "category": "entertainment",
         "description": "gamezone",
         "date": "2026-09-16"
     },
     {
-        "amount": "100.00",
+        "id": 8,
+        "amount": "9999999999999999.00",
         "category": "other",
         "description": "backexam",
         "date": "2025-09-09"
     },
     {
-        "amount": "9999999999999999.00",
-        "category": "other",
-        "description": "backexam",
-        "date": "2025-09-09"
+        "id": 9,
+        "amount": "75.00",
+        "category": "food",
+        "description": "tea",
+        "date": "2026-09-19"
+    },
+    {
+        "id": 10,
+        "amount": "100.00",
+        "category": "food",
+        "description": "Storage test",
+        "date": "2026-09-19"
+    },
+    {
+        "id": 11,
+        "amount": "100.00",
+        "category": "food",
+        "description": "Storage test",
+        "date": "2026-09-19"
+    },
+    {
+        "id": 13,
+        "amount": "250.00",
+        "category": "food",
+        "description": "pizza",
+        "date": "2026-09-19"
     }
 ]
