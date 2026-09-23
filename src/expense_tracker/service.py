@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .models import Expense, Category 
 from .storage import load_expenses, save_expense
+from .errors import ValidationError
 
 #-------""" ADD FUNCTION FOR EXPENSE """------>
 
@@ -16,21 +17,24 @@ def add_expense(amount, category, description, expense_date):
         amount = Decimal(amount)
 
         if not amount.is_finite():
-           print("Invalid amount.")
-           return
+           raise ValidationError("Invalid amount")
 
 
         amount = amount.quantize(Decimal("0.01"))
+
     except (ValueError,InvalidOperation):
-        print("Invalid amount.")
-        return
+        raise ValidationError("Invalid amount")
+
+        
     #----------- DATE VALIDATION ----------->
     
     try:
         expense_date = date.fromisoformat(expense_date)
     except ValueError:
-        print("Invalid date. Use YYYY-MM-DD format.")
-        return
+        raise ValidationError(
+            "Invalid date. Use YYYY-MM-DD format."
+            )
+        
 
 
     #----------- CATEGORY VALIDATION ----------->
@@ -38,35 +42,37 @@ def add_expense(amount, category, description, expense_date):
     category = category.lower()
 
     if category not in {item.value for item in Category}:
-       print("Invalid category.")
-       print(
-         "Allowed categories:",
-         ", ".join(sorted(item.value for item in Category))
+        allowed_categories = ". ".join(
+           sorted(item.value for item in Category)
        )
-       return
+
+        raise ValidationError(
+           f"Invalid category. Allowed categories:{allowed_categories}"
+       )
     
     #----------- DESCRIPTION VALIDATION ----------->
     
     if not description.strip():
-        print("Description cannot be empty.")
-        return
+        raise ValidationError("Description cannot be empty.")
+        
 
     if not len(description.strip()) < 100:
-        print("Description can be 100 characters or less.")
-        return
+        raise ValidationError("Description can be 100 characters or less.")
+        
 
     description = description.strip()
     #----------- FUTURE DATE VALIDATION ----------->
     
     if expense_date > date.today():
-        print("Expense date cannot be in the Future.")
-        return
+        raise ValidationError(
+            "Expense date cannot be in the Future."
+            )
 
     #----------- POSITIVE AMOUNT VALIDATION ----------->
     
     if amount <= 0:
-        print("Amount must be greater than zero.")
-        return
+        raise ValidationError("Amount must be greater than zero.")
+        
     #----------- CREATE EXPENSE ----------->
     expenses = load_expenses()
 
@@ -97,16 +103,19 @@ def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="dat
         category = category.lower()
 
     if category and category not in {item.value for item in Category}:
-        print("Invalid category.")
-        print(
-            "Allowed categories:",
-            ", ".join(sorted(item.value for item in Category))
-        )
-        return
+            allowed_categories = ". ".join(
+               sorted(item.value for item in Category)
+           )
+    
+            raise ValidationError(
+               f"Invalid category. Allowed categories:{allowed_categories}"
+           )
+
+    
     #----------- CHOICE VALIDATION ----------->
     if sort not in {"date" , "amount"}:
-        print("Invalid sort option - Use 'date' or 'amount'")
-        return
+        raise ValidationError("Invalid sort option - Use 'date' or 'amount'")
+        
 
     #----------- DATE VALIDATION ----------->
     try:
@@ -117,18 +126,18 @@ def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="dat
             to_date = date.fromisoformat(to_date)
 
     except ValueError:
-        print("Invalid date! - Use YYYY-MM-DD format.")
-        return
+        raise ValidationError("Invalid date! - Use YYYY-MM-DD format.")
+        
 
     if from_date and to_date and from_date > to_date:
-        print("From date cannot be after to date.")
-        return
+        raise ValidationError("From date cannot be after to date.")
+        
 
     #----------- LIMIT VALIDATION ----------->
 
     if limit is not None and limit <= 0:
-        print("Limit must be greater than zero.")
-        return
+        raise ValidationError("Limit must be greater than zero.")
+        
 
     #----------- FILTER EXPENSES ----------->
 
@@ -209,7 +218,9 @@ def delete_expense(expense_id):
 
             print("Expense Deleted successfully!")
             return
-    print("Expense not found")
+    raise ValidationError(
+        f"Expense with ID {expense_id} not found."
+    )
 
 #-------""" Function for Report expenses """------>
 def expense_report(month=None, year=None):
@@ -226,14 +237,14 @@ def expense_report(month=None, year=None):
         try:
             date.fromisoformat(month + "-01")
         except ValueError:
-            print("Invalid month. Use YYYY-MM format.")
-            return
+            raise ValidationError("Invalid month. Use YYYY-MM format.")
+            
 
     #----------- YEAR VALIDATION ----------->
 
     if year is not None and (year < 1 or year > 9999):
-        print("Invalid year.")
-        return
+        raise ValidationError("Invalid year.")
+        
 
     totals = {}
     monthly_totals = {}

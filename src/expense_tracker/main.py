@@ -7,7 +7,7 @@ from .service import (
     expense_report,
     export_expense
 )
-
+from .errors import ValidationError , StorageError
 
 #<------------ARGUMENT PARSER -------->
 
@@ -80,7 +80,9 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "add":
+    try:
+
+     if args.command == "add":
 
         add_expense(
             args.amount,
@@ -88,8 +90,8 @@ def main():
             args.description,
             args.date
         )
-
-    elif args.command == "list":
+ 
+     elif args.command == "list":
 
         list_expenses(
             args.category,
@@ -99,21 +101,23 @@ def main():
             args.sort
         )
 
-    elif args.command == "report":
-
+     elif args.command == "report":
+ 
         expense_report(
             args.month,
             args.year
         )
 
-    elif args.command == "delete":
+     elif args.command == "delete":
 
         delete_expense(args.id)
 
-    elif args.command == "export":
+     elif args.command == "export":
 
         export_expense(args.filename)
 
+    except (ValidationError, StorageError) as error:
+       print(f"Error : {error}")
 
 if __name__ == "__main__":
     main()

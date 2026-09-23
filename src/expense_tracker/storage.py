@@ -4,6 +4,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from expense_tracker.models import Expense , Category
+from .errors import StorageError
 
 
 DATA_FILE = Path("expenses.json")
@@ -55,9 +56,16 @@ def save_expense(expenses):
             "date":expense.date.isoformat()
         })
 
+    temp_file = DATA_FILE.with_suffix(".tmp")
+
     try:
-        with DATA_FILE.open("w" , encoding="utf-8") as file:
+        with temp_file.open("w" , encoding="utf-8") as file:
           json.dump(data, file, indent=4)
 
-    except OSError:
-        print("Unable to save expenses.")
+        temp_file.replace(DATA_FILE)
+
+    except OSError as error:
+        if temp_file.exists():
+            temp_file.unlink()
+
+        raise StorageError(f"Unable to save expenses: {error}")

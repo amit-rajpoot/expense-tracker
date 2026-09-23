@@ -75,5 +75,12 @@
         "category": "food",
         "description": "pizza",
         "date": "2026-09-19"
+    },
+    {
+        "id": 14,
+        "amount": "150.00",
+        "category": "food",
+        "description": "storage test",
+        "date": "2026-09-19"
     }
 ]
