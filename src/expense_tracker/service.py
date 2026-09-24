@@ -1,124 +1,145 @@
 import csv
-from datetime import date
-from decimal import Decimal , InvalidOperation
+from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
-from .models import Expense, Category 
-from .storage import load_expenses, save_expense
-from .errors import ValidationError
+from . import storage 
+from .errors import StorageError, ValidationError
+from .models import Category, Expense
 
-#-------""" ADD FUNCTION FOR EXPENSE """------>
+# <------------ ADD EXPENSE ------------>
 
-def add_expense(amount, category, description, expense_date):
+def add_expense(amount,category,description,expense_date,):
 
-    #----------- AMOUNT VALIDATION ----------->
-    
+    # ----------- AMOUNT VALIDATION ----------->
+
     try:
         amount = Decimal(amount)
-
         if not amount.is_finite():
-           raise ValidationError("Invalid amount")
-
+            raise ValidationError("Invalid amount.")
 
         amount = amount.quantize(Decimal("0.01"))
 
-    except (ValueError,InvalidOperation):
-        raise ValidationError("Invalid amount")
+    except (ValueError, InvalidOperation):
 
-        
-    #----------- DATE VALIDATION ----------->
-    
+        raise ValidationError("Invalid amount.")
+
+    # ----------- DATE VALIDATION ----------->
+
     try:
         expense_date = date.fromisoformat(expense_date)
+
     except ValueError:
+
         raise ValidationError(
             "Invalid date. Use YYYY-MM-DD format."
-            )
-        
+        )
 
-
-    #----------- CATEGORY VALIDATION ----------->
+    # ----------- CATEGORY VALIDATION ----------->
 
     category = category.lower()
 
-    if category not in {item.value for item in Category}:
-        allowed_categories = ". ".join(
-           sorted(item.value for item in Category)
-       )
+    if category not in {
+        item.value for item in Category
+    }:
+
+        allowed_categories = ", ".join(
+            sorted(item.value for item in Category)
+        )
 
         raise ValidationError(
-           f"Invalid category. Allowed categories:{allowed_categories}"
-       )
-    
-    #----------- DESCRIPTION VALIDATION ----------->
-    
+            f"Invalid category. Allowed categories: "
+            f"{allowed_categories}"
+        )
+
+    # ----------- DESCRIPTION VALIDATION ----------->
+
     if not description.strip():
-        raise ValidationError("Description cannot be empty.")
-        
 
-    if not len(description.strip()) < 100:
-        raise ValidationError("Description can be 100 characters or less.")
-        
-
-    description = description.strip()
-    #----------- FUTURE DATE VALIDATION ----------->
+        raise ValidationError(
+            "Description cannot be empty."
+        )
     
+    if len(description.strip()) > 100:
+
+        raise ValidationError(
+            "Description can be 100 characters or less."
+        )
+    
+    description = description.strip()
+
+    # ----------- FUTURE DATE VALIDATION ----------->
+
     if expense_date > date.today():
+
         raise ValidationError(
             "Expense date cannot be in the Future."
-            )
+        )
 
-    #----------- POSITIVE AMOUNT VALIDATION ----------->
-    
+    # ----------- POSITIVE AMOUNT VALIDATION ----------->
+
     if amount <= 0:
-        raise ValidationError("Amount must be greater than zero.")
-        
-    #----------- CREATE EXPENSE ----------->
-    expenses = load_expenses()
+
+        raise ValidationError(
+            "Amount must be greater than zero."
+        )
+
+    # ----------- CREATE EXPENSE ----------->
+
+    expenses = storage.load_expenses()
 
     expense = Expense(
-        id = max(
-            (expense.id or 0 for expense in expenses),
-            default=0) + 1,
-        amount = amount,
-        category = Category(category),
-        description =  description,
-        date = expense_date
-
+        id=storage.get_next_id(),
+        amount=amount,
+        category=Category(category),
+        description=description,
+        date=expense_date,
+        created_at=datetime.now(),
     )
 
     expenses.append(expense)
-    save_expense(expenses)
+
+    storage.save_expense(expenses)
 
     print("Expense added successfully!")
 
-#-------""" Function for List expenses """------>
-def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="date"):
 
-    expenses = load_expenses()
+# <------------ LIST EXPENSES ------------>
 
-    #----------- CATEGORY VALIDATION ----------->
+def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="date",):
+
+    expenses = storage.load_expenses()
+
+    # ----------- CATEGORY VALIDATION ----------->
 
     if category:
         category = category.lower()
 
-    if category and category not in {item.value for item in Category}:
-            allowed_categories = ". ".join(
-               sorted(item.value for item in Category)
-           )
-    
-            raise ValidationError(
-               f"Invalid category. Allowed categories:{allowed_categories}"
-           )
+    if category and category not in {
+        item.value for item in Category
+    }:
 
-    
-    #----------- CHOICE VALIDATION ----------->
-    if sort not in {"date" , "amount"}:
-        raise ValidationError("Invalid sort option - Use 'date' or 'amount'")
-        
+        allowed_categories = ", ".join(
+            sorted(item.value for item in Category)
+        )
 
-    #----------- DATE VALIDATION ----------->
+        raise ValidationError(
+            f"Invalid category. Allowed categories: "
+            f"{allowed_categories}"
+        )
+
+    # ----------- SORT VALIDATION ----------->
+
+    if sort not in {"date", "amount"}:
+
+        raise ValidationError(
+            "Invalid sort option. Use 'date' or 'amount'."
+        )
+
+    # ----------- DATE VALIDATION ----------->
+
     try:
+
         if from_date:
             from_date = date.fromisoformat(from_date)
 
@@ -126,20 +147,26 @@ def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="dat
             to_date = date.fromisoformat(to_date)
 
     except ValueError:
-        raise ValidationError("Invalid date! - Use YYYY-MM-DD format.")
-        
+
+        raise ValidationError(
+            "Invalid date. Use YYYY-MM-DD format."
+        )
 
     if from_date and to_date and from_date > to_date:
-        raise ValidationError("From date cannot be after to date.")
-        
 
-    #----------- LIMIT VALIDATION ----------->
+        raise ValidationError(
+            "From date cannot be after to date."
+        )
+
+    # ----------- LIMIT VALIDATION ----------->
 
     if limit is not None and limit <= 0:
-        raise ValidationError("Limit must be greater than zero.")
-        
 
-    #----------- FILTER EXPENSES ----------->
+        raise ValidationError(
+            "Limit must be greater than zero."
+        )
+
+    # ----------- FILTER EXPENSES ----------->
 
     filtered_expenses = []
 
@@ -156,34 +183,35 @@ def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="dat
 
         filtered_expenses.append(expense)
 
-    #----------- SORT EXPENSES ----------->
+    # ----------- SORT EXPENSES ----------->
 
     if sort == "amount":
 
         filtered_expenses.sort(
             key=lambda expense: expense.amount,
-            reverse=True
+            reverse=True,
         )
 
     else:
 
         filtered_expenses.sort(
             key=lambda expense: expense.date,
-            reverse=True
+            reverse=True,
         )
 
-    #----------- APPLY LIMIT ----------->
+    # ----------- APPLY LIMIT ----------->
 
     if limit:
         filtered_expenses = filtered_expenses[:limit]
 
-    #----------- NO EXPENSES ----------->
+    # ----------- NO EXPENSES ----------->
 
     if not filtered_expenses:
+
         print("No expenses found.")
         return
 
-    #----------- DISPLAY EXPENSES ----------->
+    # ----------- DISPLAY EXPENSES ----------->
 
     for expense in filtered_expenses:
 
@@ -191,72 +219,85 @@ def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="dat
             f"ID: {expense.id} | "
             f"{expense.date} | "
             f"{expense.category.value} | "
-            f"₹{expense.amount} | "
-            f"{expense.description}"
+            f"₹{expense.amount:.2f} | "
+            f"{expense.description} | "
+            f"Created: {expense.created_at}"
         )
 
 
-#-------""" Function for Delete expenses """------>
+# <------------ DELETE EXPENSE ------------>
 
 def delete_expense(expense_id):
 
-    expenses = load_expenses()
+    expenses = storage.load_expenses()
 
     for expense in expenses:
-        if expense.id == expense_id:
 
+        if expense.id == expense_id:
             confirmation = input(
                 f"Delete expense ID {expense_id}? (y/n): "
             ).strip().lower()
 
             if confirmation != "y":
+
                 print("Delete cancelled.")
                 return
-            
+
             expenses.remove(expense)
-            save_expense(expenses)
+            storage.save_expense(expenses)
 
             print("Expense Deleted successfully!")
             return
+
     raise ValidationError(
         f"Expense with ID {expense_id} not found."
     )
 
-#-------""" Function for Report expenses """------>
-def expense_report(month=None, year=None):
 
-    expenses = load_expenses()
+# <------------ EXPENSE REPORT ------------>
+
+def expense_report(month=None,year=None,):
+
+    expenses = storage.load_expenses()
 
     if not expenses:
+
         print("No expense found.")
         return
 
-    #----------- MONTH VALIDATION ----------->
+    # ----------- MONTH VALIDATION ----------->
 
     if month:
+
         try:
+
             date.fromisoformat(month + "-01")
+
         except ValueError:
-            raise ValidationError("Invalid month. Use YYYY-MM format.")
-            
 
-    #----------- YEAR VALIDATION ----------->
+            raise ValidationError(
+                "Invalid month. Use YYYY-MM format."
+            )
 
-    if year is not None and (year < 1 or year > 9999):
+    # ----------- YEAR VALIDATION ----------->
+
+    if year is not None and (
+        year < 1 or year > 9999
+    ):
+
         raise ValidationError("Invalid year.")
-        
 
+ 
     totals = {}
     monthly_totals = {}
     grand_total = Decimal("0")
 
-    #----------- PROCESS EXPENSES ----------->
+    # ----------- PROCESS EXPENSES ----------->
 
     for expense in expenses:
-
-        expense_month = expense.date.strftime("%Y-%m")
-
-        #----------- MONTH FILTER ----------->
+        expense_month = expense.date.strftime(
+            "%Y-%m"
+        )
 
         if month and expense_month != month:
             continue
@@ -278,76 +319,96 @@ def expense_report(month=None, year=None):
         totals[category] += amount
         monthly_totals[expense_month] += amount
 
-    #----------- CATEGORY TOTAL ----------->
+    # ----------- CATEGORY TOTAL ----------->
 
     if not totals:
+
         print("No expenses found.")
         return
 
     for category in sorted(totals):
-        print(f"{category}:₹{totals[category]:.2f}")
 
-    #----------- MONTHLY SUMMARY ----------->
+        print(
+            f"{category}: ₹{totals[category]:.2f}"
+        )
+
+    # ----------- MONTHLY SUMMARY ----------->
 
     print("\nMonthly Summary:")
 
     for expense_month in sorted(monthly_totals):
-        print(f"{expense_month}: ₹{monthly_totals[expense_month]:.2f}")
 
-    #----------- GRAND TOTAL ----------->
+        print(
+            f"{expense_month}: "
+            f"₹{monthly_totals[expense_month]:.2f}"
+        )
+
+    # ----------- GRAND TOTAL ----------->
 
     print("\nGrand Total:")
     print(f"₹{grand_total:.2f}")
 
-#-------""" Function for Export expenses """------>
+
+# <------------ EXPORT EXPENSES ------------>
+
 def export_expense(filename):
 
-    expenses = load_expenses()
-
+    expenses = storage.load_expenses()
     filename = filename.strip()
 
     if not filename:
-        print("Filename cannot be empty")
-        return
+
+        raise ValidationError(
+            "Filename cannot be empty."
+        )
 
     filename = Path(filename)
 
     if filename.suffix.lower() != ".csv":
+
         filename = filename.with_suffix(".csv")
 
-    
     if not expenses:
+
         print("No expenses to export.")
         return
 
     try:
-      # It create the directory if it doesn't exist
-      filename.parent.mkdir(parents=True , exist_ok=True)
+        filename.parent.mkdir(parents=True,exist_ok=True,)
 
-      with open(filename, "w", newline="", encoding="utf-8") as file:
+        with open(filename,"w",newline="",encoding="utf-8") as file:
 
-        writer = csv.writer(file)
+            writer = csv.writer(file)
+            writer.writerow(
+                [
+                    "id",
+                    "amount",
+                    "category",
+                    "description",
+                    "date",
+                    "currency",
+                    "created_at",
+                ]
+            )
 
-        writer.writerow([
-            "id",
-            "amount",
-            "category",
-            "description",
-            "date"
-        ])
+            for expense in expenses:
 
-        for expense in expenses:
+                writer.writerow(
+                    [
+                        expense.id,
+                        f"{expense.amount:.2f}",
+                        expense.category.value,
+                        expense.description,
+                        expense.date,
+                        expense.currency,
+                        expense.created_at,
+                    ]
+                )
 
-            writer.writerow([
-                expense.id,
-                f"{expense.amount:.2f}",
-                expense.category.value,
-                expense.description,
-                expense.date,
-            ])
+    except OSError as error:
 
-    except OSError:
-      print("Unable to export file.")
-      return
+        raise StorageError(
+            f"Unable to export file: {error}"
+        )
 
     print(f"Expense exported to {filename}")

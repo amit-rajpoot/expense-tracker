@@ -1,86 +1,33 @@
-[
+{
+  "version": 1,
+  "next_id": 4,
+  "expenses": [
     {
-        "id": 1,
-        "amount": "200.00",
-        "category": "food",
-        "description": "breakfast",
-        "date": "2026-08-14"
+      "id": 1,
+      "amount": "250.50",
+      "category": "food",
+      "description": "Lunch",
+      "date": "2026-09-20",
+      "currency": "INR",
+      "created_at": "2026-09-20T14:30:00"
     },
     {
-        "id": 2,
-        "amount": "350.00",
-        "category": "transport",
-        "description": "auto",
-        "date": "2026-09-14"
+      "id": 2,
+      "amount": "120.00",
+      "category": "transport",
+      "description": "Auto fare",
+      "date": "2026-09-21",
+      "currency": "INR",
+      "created_at": "2026-09-21T09:15:00"
     },
     {
-        "id": 3,
-        "amount": "250.00",
-        "category": "food",
-        "description": "lunch",
-        "date": "2026-09-15"
-    },
-    {
-        "id": 4,
-        "amount": "150.00",
-        "category": "other",
-        "description": "tshirt",
-        "date": "2026-09-15"
-    },
-    {
-        "id": 5,
-        "amount": "300.00",
-        "category": "food",
-        "description": "dinner",
-        "date": "2026-09-16"
-    },
-    {
-        "id": 6,
-        "amount": "100.00",
-        "category": "entertainment",
-        "description": "gamezone",
-        "date": "2026-09-16"
-    },
-    {
-        "id": 8,
-        "amount": "9999999999999999.00",
-        "category": "other",
-        "description": "backexam",
-        "date": "2025-09-09"
-    },
-    {
-        "id": 9,
-        "amount": "75.00",
-        "category": "food",
-        "description": "tea",
-        "date": "2026-09-19"
-    },
-    {
-        "id": 10,
-        "amount": "100.00",
-        "category": "food",
-        "description": "Storage test",
-        "date": "2026-09-19"
-    },
-    {
-        "id": 11,
-        "amount": "100.00",
-        "category": "food",
-        "description": "Storage test",
-        "date": "2026-09-19"
-    },
-    {
-        "id": 13,
-        "amount": "250.00",
-        "category": "food",
-        "description": "pizza",
-        "date": "2026-09-19"
-    },
-    {
-        "id": 14,
-        "amount": "150.00",
-        "category": "food",
-        "description": "storage test",
-        "date": "2026-09-19"
+      "id": 3,
+      "amount": "1500.00",
+      "category": "rent",
+      "description": "Room rent",
+      "date": "2026-09-22",
+      "currency": "INR",
+      "created_at": "2026-09-22T10:00:00"
     }
-]
+  ]
+}

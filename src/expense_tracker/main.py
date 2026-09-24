@@ -1,39 +1,38 @@
 import argparse
 
+from .errors import StorageError, ValidationError
 from .service import (
     add_expense,
-    list_expenses,
     delete_expense,
     expense_report,
-    export_expense
+    export_expense,
+    list_expenses,
 )
-from .errors import ValidationError , StorageError
 
-#<------------ARGUMENT PARSER -------->
 
+# <------------ ARGUMENT PARSER ------------>
 parser = argparse.ArgumentParser(
     description="A simple expense tracker CLI"
 )
 
 
-#----------- SUBPARSERS ----------->
+# <------------ SUBPARSERS ------------>
 
 subparsers = parser.add_subparsers(
     dest="command"
 )
 
 
-#--------------------ADD COMMAND--------->
+# <------------ ADD COMMAND ------------>
 
 add_parser = subparsers.add_parser("add")
-
 add_parser.add_argument("amount")
 add_parser.add_argument("category")
 add_parser.add_argument("description")
 add_parser.add_argument("date")
 
 
-#---------------------LIST COMMAND --------->
+# <------------ LIST COMMAND ------------>
 
 list_parser = subparsers.add_parser("list")
 
@@ -44,11 +43,11 @@ list_parser.add_argument("--limit", type=int)
 list_parser.add_argument(
     "--sort",
     choices=["date", "amount"],
-    default="date"
+    default="date",
 )
 
 
-#------------------REPORT COMMAND ------------>
+# <------------ REPORT COMMAND ------------>
 
 report_parser = subparsers.add_parser("report")
 
@@ -56,25 +55,25 @@ report_parser.add_argument("--month")
 report_parser.add_argument("--year", type=int)
 
 
-#--------------------DELETE COMMAND--------->
+# <------------ DELETE COMMAND ------------>
 
 delete_parser = subparsers.add_parser("delete")
 
 delete_parser.add_argument("id", type=int)
 
 
-#--------------------EXPORT COMMAND--------->
+# <------------ EXPORT COMMAND ------------>
 
 export_parser = subparsers.add_parser("export")
 
 export_parser.add_argument(
     "filename",
     nargs="?",
-    default="expenses.csv"
+    default="expenses.csv",
 )
 
 
-#------- MAIN FUNCTION ------>
+# <------------ MAIN FUNCTION ------------>
 
 def main():
 
@@ -82,42 +81,63 @@ def main():
 
     try:
 
-     if args.command == "add":
+        # <------------ ADD ------------>
 
-        add_expense(
-            args.amount,
-            args.category,
-            args.description,
-            args.date
-        )
- 
-     elif args.command == "list":
+        if args.command == "add":
 
-        list_expenses(
-            args.category,
-            args.from_date,
-            args.to_date,
-            args.limit,
-            args.sort
-        )
+            add_expense(
+                args.amount,
+                args.category,
+                args.description,
+                args.date,
+            )
 
-     elif args.command == "report":
- 
-        expense_report(
-            args.month,
-            args.year
-        )
 
-     elif args.command == "delete":
+        # <------------ LIST ------------>
 
-        delete_expense(args.id)
+        elif args.command == "list":
 
-     elif args.command == "export":
+            list_expenses(
+                args.category,
+                args.from_date,
+                args.to_date,
+                args.limit,
+                args.sort,
+            )
 
-        export_expense(args.filename)
 
+        # <------------ REPORT ------------>
+
+        elif args.command == "report":
+
+            expense_report(
+                args.month,
+                args.year,
+            )
+
+
+        # <------------ DELETE ------------>
+
+        elif args.command == "delete":
+
+            delete_expense(args.id)
+
+
+        # <------------ EXPORT ------------>
+
+        elif args.command == "export":
+
+            export_expense(args.filename)
+
+
+    # <------------ ERROR HANDLING ------------>
+    
     except (ValidationError, StorageError) as error:
-       print(f"Error : {error}")
+
+        print(f"Error: {error}")
+
+
+# <------------ PROGRAM ENTRY POINT ------------>
 
 if __name__ == "__main__":
     main()
