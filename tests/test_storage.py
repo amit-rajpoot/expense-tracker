@@ -5,7 +5,6 @@ from decimal import Decimal
 from expense_tracker import storage
 from expense_tracker.models import Category, Expense
 
-
 # <------------ SAVE AND LOAD TEST ------------>
 
 def test_save_and_load_expense(tmp_path, monkeypatch):

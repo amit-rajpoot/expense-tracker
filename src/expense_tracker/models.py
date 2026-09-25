@@ -3,7 +3,6 @@ from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 
-
 # <------------ CATEGORY ENUM ------------>
 
 class Category(str, Enum):

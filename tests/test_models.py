@@ -1,8 +1,7 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from expense_tracker.models import Category, Expense
-
 
 # <------------ EXPENSE CREATION TEST ------------>
 
@@ -56,7 +55,7 @@ def test_expense_defaults():
 
 def test_expense_created_at():
 
-    created_at = datetime(2026, 9, 24, 10, 30)
+    created_at = datetime(2026, 9, 24, 10, 30 , tzinfo=UTC)
 
     expense = Expense(
         id=1,

@@ -9,7 +9,6 @@ from .service import (
     list_expenses,
 )
 
-
 # <------------ ARGUMENT PARSER ------------>
 parser = argparse.ArgumentParser(
     description="A simple expense tracker CLI"

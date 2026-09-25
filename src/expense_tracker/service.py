@@ -3,7 +3,7 @@ from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
-from . import storage 
+from . import storage
 from .errors import StorageError, ValidationError
 from .models import Category, Expense
 
@@ -70,7 +70,7 @@ def add_expense(amount,category,description,expense_date,):
 
     # ----------- FUTURE DATE VALIDATION ----------->
 
-    if expense_date > date.today():
+    if expense_date > datetime.now().astimezone().date():
 
         raise ValidationError(
             "Expense date cannot be in the Future."
@@ -94,7 +94,7 @@ def add_expense(amount,category,description,expense_date,):
         category=Category(category),
         description=description,
         date=expense_date,
-        created_at=datetime.now(),
+        created_at=datetime.now().astimezone(),
     )
 
     expenses.append(expense)
@@ -290,7 +290,7 @@ def expense_report(month=None,year=None,):
  
     totals = {}
     monthly_totals = {}
-    grand_total = Decimal("0")
+    grand_total = Decimal(0)
 
     # ----------- PROCESS EXPENSES ----------->
 
@@ -311,10 +311,10 @@ def expense_report(month=None,year=None,):
         grand_total += amount
 
         if category not in totals:
-            totals[category] = Decimal("0")
+            totals[category] = Decimal(0)
 
         if expense_month not in monthly_totals:
-            monthly_totals[expense_month] = Decimal("0")
+            monthly_totals[expense_month] = Decimal(0)
 
         totals[category] += amount
         monthly_totals[expense_month] += amount

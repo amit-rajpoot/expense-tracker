@@ -6,7 +6,6 @@ from pathlib import Path
 from .errors import StorageError
 from .models import Category, Expense
 
-
 # <------------ DATA FILE ------------>
 
 DATA_FILE = Path(__file__).resolve().parents[2] / "expenses.json"

@@ -5,7 +5,6 @@ import pytest
 from expense_tracker import service
 from expense_tracker.models import Category
 
-
 # <------------ ADD EXPENSE TEST ------------>
 
 def test_add_expense(tmp_path, monkeypatch, capsys):
