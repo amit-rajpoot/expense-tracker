@@ -9,8 +9,12 @@ from .models import Category, Expense
 
 # <------------ ADD EXPENSE ------------>
 
-def add_expense(amount,category,description,expense_date,):
-
+def add_expense(
+    amount: str,
+    category: str,
+    description: str,
+    expense_date: str,
+) -> None:
     # ----------- AMOUNT VALIDATION ----------->
 
     try:
@@ -106,8 +110,14 @@ def add_expense(amount,category,description,expense_date,):
 
 # <------------ LIST EXPENSES ------------>
 
-def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="date",):
-
+def list_expenses(
+    category: str | None = None,
+    from_date: str | None = None,
+    to_date: str | None = None,
+    limit: int | None = None,
+    sort: str = "date",
+) -> None:
+    
     expenses = storage.load_expenses()
 
     # ----------- CATEGORY VALIDATION ----------->
@@ -227,7 +237,7 @@ def list_expenses(category=None,from_date=None,to_date=None,limit=None,sort="dat
 
 # <------------ DELETE EXPENSE ------------>
 
-def delete_expense(expense_id):
+def delete_expense(expense_id: int) -> None:
 
     expenses = storage.load_expenses()
 
@@ -256,8 +266,11 @@ def delete_expense(expense_id):
 
 # <------------ EXPENSE REPORT ------------>
 
-def expense_report(month=None,year=None,):
-
+def expense_report(
+    month: str | None = None,
+    year: int | None = None,
+) -> None:
+    
     expenses = storage.load_expenses()
 
     if not expenses:
@@ -351,7 +364,7 @@ def expense_report(month=None,year=None,):
 
 # <------------ EXPORT EXPENSES ------------>
 
-def export_expense(filename):
+def export_expense(filename: str) -> None:
 
     expenses = storage.load_expenses()
     filename = filename.strip()

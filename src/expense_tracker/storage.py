@@ -13,7 +13,7 @@ DATA_FILE = Path(__file__).resolve().parents[2] / "expenses.json"
 
 # <------------ LOAD EXPENSES ------------>
 
-def load_expenses():
+def load_expenses() -> list[Expense]:
 
     if not DATA_FILE.exists():
         return []
@@ -73,7 +73,7 @@ def load_expenses():
 
 # <------------ GET NEXT ID ------------>
 
-def get_next_id():
+def get_next_id() -> int:
 
     if not DATA_FILE.exists():
         return 1
@@ -97,7 +97,7 @@ def get_next_id():
 
 # <------------ SAVE EXPENSES ------------>
 
-def save_expense(expenses):
+def save_expense(expenses: list[Expense]) -> None:
 
     data = []
 
