@@ -11,16 +11,12 @@ from .service import (
 
 # <------------ ARGUMENT PARSER ------------>
 
-parser = argparse.ArgumentParser(
-    description="A simple expense tracker CLI"
-)
+parser = argparse.ArgumentParser(description="A simple expense tracker CLI")
 
 
 # <------------ SUBPARSERS ------------>
 
-subparsers = parser.add_subparsers(
-    dest="command"
-)
+subparsers = parser.add_subparsers(dest="command")
 
 
 # <------------ ADD COMMAND ------------>
@@ -77,57 +73,68 @@ export_parser.add_argument(
 
 # <------------ PARSE ARGUMENTS ------------>
 
+
 def parse_args():
-   
 
     return parser.parse_args()
 
+
+# <------------ COMMAND HANDLERS ------------>
+
+
+def _handle_add(args):
+    add_expense(
+        args.amount,
+        args.category,
+        args.description,
+        args.date,
+    )
+
+
+def _handle_list(args):
+    list_expenses(
+        args.category,
+        args.from_date,
+        args.to_date,
+        args.limit,
+        args.sort,
+    )
+
+
+def _handle_report(args):
+    expense_report(
+        args.month,
+        args.year,
+    )
+
+
+def _handle_delete(args):
+    delete_expense(args.id)
+
+
+def _handle_export(args):
+    export_expense(args.filename)
+
+
 # <------------ COMMAND DISPATCHER ------------>
 
+
 def run():
-    
     args = parse_args()
 
+    handlers = {
+        "add": _handle_add,
+        "list": _handle_list,
+        "report": _handle_report,
+        "delete": _handle_delete,
+        "export": _handle_export,
+    }
+
     try:
+        handler = handlers.get(args.command)
 
-        # <------------ ADD ------------>
-
-        if args.command == "add":
-            add_expense(
-                args.amount,
-                args.category,
-                args.description,
-                args.date,
-            )
-
-        # <------------ LIST ------------>
-
-        elif args.command == "list":
-            list_expenses(
-                args.category,
-                args.from_date,
-                args.to_date,
-                args.limit,
-                args.sort,
-            )
-
-        # <------------ REPORT ------------>
-
-        elif args.command == "report":
-            expense_report(
-                args.month,
-                args.year,
-            )
-
-        # <------------ DELETE ------------>
-
-        elif args.command == "delete":
-            delete_expense(args.id)
-
-        # <------------ EXPORT ------------>
-
-        elif args.command == "export":
-            export_expense(args.filename)
+        if handler:
+            handler(args)
 
     except (ValidationError, StorageError) as error:
         print(f"Error: {error}")

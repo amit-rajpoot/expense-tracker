@@ -5,8 +5,8 @@ from enum import Enum
 
 # <------------ CATEGORY ENUM ------------>
 
-class Category(str, Enum):
 
+class Category(str, Enum):
     FOOD = "food"
     TRANSPORT = "transport"
     RENT = "rent"
@@ -18,9 +18,9 @@ class Category(str, Enum):
 
 # <------------ EXPENSE MODEL ------------>
 
+
 @dataclass
 class Expense:
-
     id: int
     amount: Decimal
     category: Category

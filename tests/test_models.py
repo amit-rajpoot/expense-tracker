@@ -5,6 +5,7 @@ from expense_tracker.models import Category, Expense
 
 # <------------ EXPENSE CREATION TEST ------------>
 
+
 def test_expense_creation():
 
     expense = Expense(
@@ -24,6 +25,7 @@ def test_expense_creation():
 
 # <------------ CATEGORY TEST ------------>
 
+
 def test_category_values():
 
     assert Category.FOOD.value == "food"
@@ -36,6 +38,7 @@ def test_category_values():
 
 
 # <------------ EXPENSE DEFAULT TEST ------------>
+
 
 def test_expense_defaults():
 
@@ -53,9 +56,10 @@ def test_expense_defaults():
 
 # <------------ EXPENSE WITH CREATED AT TEST ------------>
 
+
 def test_expense_created_at():
 
-    created_at = datetime(2026, 9, 24, 10, 30 , tzinfo=UTC)
+    created_at = datetime(2026, 9, 24, 10, 30, tzinfo=UTC)
 
     expense = Expense(
         id=1,

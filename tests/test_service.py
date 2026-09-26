@@ -7,6 +7,7 @@ from expense_tracker.models import Category
 
 # <------------ ADD EXPENSE TEST ------------>
 
+
 def test_add_expense(tmp_path, monkeypatch, capsys):
 
     test_file = tmp_path / "expenses.json"
@@ -37,10 +38,10 @@ def test_add_expense(tmp_path, monkeypatch, capsys):
 
 # <------------ INVALID AMOUNT TEST ------------>
 
+
 def test_add_expense_invalid_amount():
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "banana",
             "food",
@@ -51,10 +52,10 @@ def test_add_expense_invalid_amount():
 
 # <------------ NEGATIVE AMOUNT TEST ------------>
 
+
 def test_add_expense_negative_amount():
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "-100",
             "food",
@@ -65,10 +66,10 @@ def test_add_expense_negative_amount():
 
 # <------------ INVALID DATE TEST ------------>
 
+
 def test_add_expense_invalid_date():
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "100",
             "food",
@@ -79,10 +80,10 @@ def test_add_expense_invalid_date():
 
 # <------------ FUTURE DATE TEST ------------>
 
+
 def test_add_expense_future_date():
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "100",
             "food",
@@ -93,10 +94,10 @@ def test_add_expense_future_date():
 
 # <------------ INVALID CATEGORY TEST ------------>
 
+
 def test_add_expense_invalid_category():
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "100",
             "invalid-category",
@@ -107,10 +108,10 @@ def test_add_expense_invalid_category():
 
 # <------------ EMPTY DESCRIPTION TEST ------------>
 
+
 def test_add_expense_empty_description():
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "100",
             "food",
@@ -121,12 +122,12 @@ def test_add_expense_empty_description():
 
 # <------------ LONG DESCRIPTION TEST ------------>
 
+
 def test_add_expense_long_description():
 
     description = "a" * 101
 
     with pytest.raises(service.ValidationError):
-
         service.add_expense(
             "100",
             "food",
@@ -136,6 +137,7 @@ def test_add_expense_long_description():
 
 
 # <------------ LIST EXPENSES TEST ------------>
+
 
 def test_list_expenses(
     tmp_path,
@@ -167,6 +169,7 @@ def test_list_expenses(
 
 
 # <------------ CATEGORY FILTER TEST ------------>
+
 
 def test_list_category_filter(
     tmp_path,
@@ -205,6 +208,7 @@ def test_list_category_filter(
 
 
 # <------------ DATE FILTER TEST ------------>
+
 
 def test_list_date_filter(
     tmp_path,
@@ -246,6 +250,7 @@ def test_list_date_filter(
 
 # <------------ LIMIT TEST ------------>
 
+
 def test_list_limit(
     tmp_path,
     monkeypatch,
@@ -261,7 +266,6 @@ def test_list_limit(
     )
 
     for number in range(5):
-
         service.add_expense(
             str(number + 1),
             "food",
@@ -277,6 +281,7 @@ def test_list_limit(
 
 
 # <------------ SORT BY AMOUNT TEST ------------>
+
 
 def test_list_sort_by_amount(
     tmp_path,
@@ -315,6 +320,7 @@ def test_list_sort_by_amount(
 
 # <------------ DELETE SUCCESS TEST ------------>
 
+
 def test_delete_expense(
     tmp_path,
     monkeypatch,
@@ -350,6 +356,7 @@ def test_delete_expense(
 
 # <------------ DELETE CANCEL TEST ------------>
 
+
 def test_delete_cancelled(
     tmp_path,
     monkeypatch,
@@ -384,6 +391,7 @@ def test_delete_cancelled(
 
 # <------------ DELETE NOT FOUND TEST ------------>
 
+
 def test_delete_not_found(
     tmp_path,
     monkeypatch,
@@ -398,11 +406,11 @@ def test_delete_not_found(
     )
 
     with pytest.raises(service.ValidationError):
-
         service.delete_expense(999)
 
 
 # <------------ REPORT TEST ------------>
+
 
 def test_expense_report(
     tmp_path,
@@ -482,12 +490,13 @@ def test_expense_report_month_filter(
 
     assert "500.00" not in captured.out
 
+
 # <------------ INVALID MONTH TEST ------------>
+
 
 def test_expense_report_invalid_month():
 
     with pytest.raises(service.ValidationError):
-
         service.expense_report(
             month="wrong-month",
         )
@@ -495,16 +504,17 @@ def test_expense_report_invalid_month():
 
 # <------------ INVALID YEAR TEST ------------>
 
+
 def test_expense_report_invalid_year():
 
     with pytest.raises(service.ValidationError):
-
         service.expense_report(
             year=0,
         )
 
 
 # <------------ EXPORT TEST ------------>
+
 
 def test_export_expense(
     tmp_path,
@@ -544,6 +554,7 @@ def test_export_expense(
 
 # <------------ EMPTY FILENAME TEST ------------>
 
+
 def test_export_empty_filename(
     tmp_path,
     monkeypatch,
@@ -558,5 +569,4 @@ def test_export_empty_filename(
     )
 
     with pytest.raises(service.ValidationError):
-
         service.export_expense("")

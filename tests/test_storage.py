@@ -7,6 +7,7 @@ from expense_tracker.models import Category, Expense
 
 # <------------ SAVE AND LOAD TEST ------------>
 
+
 def test_save_and_load_expense(tmp_path, monkeypatch):
     test_file = tmp_path / "expenses.json"
 
@@ -39,6 +40,7 @@ def test_save_and_load_expense(tmp_path, monkeypatch):
 
 # <------------ NEXT ID TEST ------------>
 
+
 def test_get_next_id(tmp_path, monkeypatch):
 
     test_file = tmp_path / "expenses.json"
@@ -67,6 +69,7 @@ def test_get_next_id(tmp_path, monkeypatch):
 
 # <------------ INVALID JSON TEST ------------>
 
+
 def test_load_expenses_with_invalid_json(
     tmp_path,
     monkeypatch,
@@ -91,6 +94,7 @@ def test_load_expenses_with_invalid_json(
 
 
 # <------------ MISSING FILE TEST ------------>
+
 
 def test_load_expenses_when_file_missing(
     tmp_path,
